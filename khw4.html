@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Vampire App</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script src ="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script type="text/javascript">
+      //example
+      //{
+      //  'name' : 'John',
+      //  'shadow' : 'no',
+      //  'garlic' : 'no',
+      //  'complexion' : 'pale',
+      //}
+      //Accessed via: classmate_data[indexNum][aspectName]
+      var classmate_data = [
+        //Filled via input form later
+      ]
+ 
+      //defaults to Randomize method
+      var method = 1;
+
+      function addClassmate(){
+	    var addName = document.getElementById('stName').value;
+	    var addComplexion = document.getElementById('stComplexion').value;
+		var addShadow = 'no';
+		var addGarlic = 'no';
+		
+		if (document.getElementById('stShadow').checked != false){
+			addShadow = 'yes';
+		}
+		if (document.getElementById('stGarlic').checked != false){
+			addGarlic = 'yes';
+		}
+		
+		var table = document.getElementById('student_table');
+	    var row = table.insertRow(1);
+		var cell1 = row.insertCell(0);
+		var cell2 = row.insertCell(1);
+		var cell3 = row.insertCell(2);
+		var cell4 = row.insertCell(3);
+		
+		cell1.innerHTML = addName;
+		cell2.innerHTML = addShadow;
+		cell3.innerHTML = addGarlic;
+		cell4.innerHTML = addComplexion;
+		
+        classmate_data.push({'name' : addName,
+                             'shadow' : addShadow,
+                             'garlic' : addGarlic,
+                             'complexion' : addComplexion});
+
+		drawChart();
+      }
+      function changeMethod(){
+        method = document.getElementById('sort-des').value;
+        drawChart();
+      }
+      
+      google.charts.load('current',{'packages':['corechart']});
+
+      function drawChart(){
+        var data = new google.visualization.DataTable();
+        classmate_data_processing(data);
+
+        var options = {'title':'Vampires in this class',
+                       'width':400,
+                       'height':300};
+        var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
+        chart.draw(data,options);
+      }
+
+      //Evaluates classmate_data
+      function classmate_data_processing(result_data){
+		var num_human = 0;
+var num_vampire = 0;
+for (var i = 0; i <= classmate_data.length - 1; i++){
+      if (method == 2){
+  var threshold = 0;
+  if(classmate_data[i]['shadow'] == 'no'){
+				  threshold += 4;
+  } 
+  if(classmate_data[i]['garlic'] == 'no'){
+			    	  threshold += 3;
+  }
+  if(classmate_data[i]['complexion'] == 'pale'){
+				  threshold += 3;
+  }
+			  if(threshold > 6){
+			  	  num_vampire ++;
+			  }
+			  else{
+				  num_human ++;
+  }
+    }
+    else{
+      if(Math.random() >= .5){
+        num_human++;
+      }
+      else{
+        num_vampire++;
+      }
+    }
+      	}
+		result_data.addColumn('string', 'Element');
+		result_data.addColumn('number', 'Count');
+		result_data.addRows([
+			['Human', num_human],
+			['Vampire', num_vampire]
+		]);
+}
+    </script>
+  </head>
+
+  <body>
+    <div class ="form-group">
+      <label for="sort-des">Select Sorting Method:</label>
+      <select class="form-control" id="sort-des">
+        <option value='1'>Randomize</option>
+        <option value='2'>Threshold</option>
+      </select> 
+      <button class="btn btn-primary" onclick="changeMethod()">Submit</button>
+
+     
+    </div>
+    <div class="container">
+      <form>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="stName">Name</label>
+            <input type="text" class="form-control" id="stName" placeholder="Name">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <div class="checkbox">
+              <label><input type="checkbox" id="stShadow">Shadow</label>
+            </div>
+            <div class="checkbox">
+              <label><input type="checkbox" id="stGarlic">Garlic</label>
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="stComplexion">Complexion</label>
+            <input type="text" class="form-control" id="stComplexion" placeholder="Complexion">
+          </div>
+        </div>
+      </form>
+      <button class="btn btn-primary" onclick="addClassmate()">Submit</button>
+    </div>
+	<div class="container">
+	  <table class="table table-bordered" id="student_table">
+	    <thead>
+	      <tr>
+		    <th>Name</th>
+		    <th>Shadow</th>
+		    <th>Garlic</th>
+		    <th>Complexion</th>
+	  	  </tr>
+	    </thead>
+	  </table>
+	</div>
+    <div id="chart_div"></div>
+  </body>
+</html> 
+

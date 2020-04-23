@@ -1,6 +1,7 @@
 import os
 from flask import Flask, render_template, request, redirect
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.sql import text
 import json
 import util
 
@@ -14,6 +15,15 @@ app.config['SQLALCHEMY_TRACK_MODIFICATION'] = False
 db = SQLAlchemy(app)
 
 #MODELS
+
+noPhys = 'NULL'
+noMent = 'NULL'
+noOut = 'NULL'
+noIn = 'NULL'
+noRel = 'NULL'
+noExc = 'NULL'
+noComp = 'NULL'
+noSim = 'NULL'
 
 class Activity(db.Model):
   __tablename__ = 'activities'
@@ -31,12 +41,20 @@ class Activity(db.Model):
 
 @app.route('/', methods=['POST','GET'])
 def index():
+  global noPhys
+  global noMent
+  global noOut
+  global noIn
+  global noRel
+  global noExc 
+  global noComp 
+  global noSim 
   db.drop_all()
   db.create_all()
   
   #ACTIVITIES
-  task1 = Activity(id = 1, phySed = 'physical', excRel = 'relaxing', indOut = 'indoors', hobTas = 'task', simCom = 'simple', name = 'Clean', desc = 'Take some time to clean your enviorment, vacum, sweep, dust, etc and sanatize all surfaces around you.', img = 'https://cleanmyspace.com/wp-content/uploads/2017/08/professional-cleaning-tips.jpg')
-  task2 = Activity(id= 2, phySed='pysical', excRel='either', indOut='either', hobTas='either', simCom='simple', name='Work Out', desc='Its time to stay in shape! Work out for 30 minutes. Focus more on your form than speed.', img='https://static.vecteezy.com/system/resources/previews/000/162/135/original/push-up-pose-vector.jpg')
+  task1 = Activity(id = 1, phySed = 'mental', excRel = 'relaxing', indOut = 'indoors', hobTas = 'task', simCom = 'simple', name = 'Clean', desc = 'Take some time to clean your enviorment, vacum, sweep, dust, etc and sanatize all surfaces around you.', img = 'https://cleanmyspace.com/wp-content/uploads/2017/08/professional-cleaning-tips.jpg')
+  task2 = Activity(id= 2, phySed='physical', excRel='either', indOut='either', hobTas='either', simCom='simple', name='Work Out', desc='Its time to stay in shape! Work out for 30 minutes. Focus more on your form than speed.', img='https://static.vecteezy.com/system/resources/previews/000/162/135/original/push-up-pose-vector.jpg')
   task3 = Activity(id= 3, phySed='physical', excRel='relaxing', indOut='outdoors', hobTas='either', simCom='simple', name='Go On A Walk', desc='Just enjoy your enviorment and go on a walk. Remember to mind those around you and stay away from strangers.', img='https://mindfulnessatwork.ie/wp-content/uploads/2013/05/walk-mindfully.jpg')
   task4 = Activity(id= 4, phySed='mental', excRel='either', indOut='indoors', hobTas='hobby', simCom='either', name='Play A Game', desc='Find any game you can play, on your phone or computer, even a board game will do. Take some time to relax and have some fun.', img='https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/board-game-royalty-free-image-1584714025.jpg?crop=1.00xw:0.756xh;0,0.0856xh&resize=1200:*')
   task5 = Activity(id= 5, phySed='physical', excRel='relaxing', indOut='outdoors', hobTas='task', simCom='simple', name='Yard Work', desc='Summer is comming and its time to make sure your yard is ready! If you dont have a yard, maybe spruce up your place with some plants.', img='https://cdn2.cityofhanahan.com/wp-content/uploads/2018/03/22085728/yard-work.jpg')
@@ -49,6 +67,18 @@ def index():
 
   db.session.add_all([task1,task2,task3,task4,task5,task6,task7,task8,task9,task10,task11])
   db.session.commit()
+  if request.method == 'POST':
+        noPhys = (request.form.get('noPhysical'))
+        noMent = (request.form.get('noMental'))
+        noOut = (request.form.get('noOutDoor'))
+        noIn = (request.form.get('noInDoor'))
+        noRel = (request.form.get('noRelax'))
+        noExc = (request.form.get('noExcite'))
+        noComp = (request.form.get('noComplex'))
+        noSim = (request.form.get('noSimple'))
+        
+        #print(noPhys)
+        return render_template('index.html')
   return render_template('index.html')
 
 @app.route('/projMotiv')
@@ -61,15 +91,96 @@ def teamIntro():
 
 @app.route('/api/get_productive', methods=['GET'])
 def get_productive():
-  return util.rand_act(Activity.query.filter(Activity.hobTas != 'hobby'))
+  #noPhys = (request.form.getlist('noPhysical'))
+  global noPhys
+  global noMent
+  global noOut
+  global noIn
+  global noRel
+  global noExc 
+  global noComp 
+  global noSim
+  
+  
+  temp = "activities_hobTas != 'hobby'"
+  if noPhys is not None:
+      temp += "AND activities_phySed != 'physical'"
+  if noMent is not None:
+      temp += "AND activities_phySed != 'mental'"
+  if noOut is not None:
+      temp += "AND activities_indOut!= 'outdoors'"
+  if noIn is not None:
+      temp += "AND activities_indOut != 'indoors'"
+  if noRel is not None:
+      temp += "AND activities_excRel != 'relaxing'"
+  if noExc is not None:
+      temp += "AND activities_excRel != 'exciting'"
+  if noComp is not None:
+      temp += "AND activities_simCom != 'complex'"
+  if noSim is not None:
+      temp += "AND activities_simCom != 'simple'"
+  print(temp)
+  return util.rand_act(Activity.query.filter(text(temp)))
 
 @app.route('/api/get_rand', methods=['GET'])
 def get_rand():
-  return util.rand_act(Activity.query.all())
+  global noPhys
+  global noMent
+  global noOut
+  global noIn
+  global noRel
+  global noExc 
+  global noComp 
+  global noSim 
+  temp = "activities_hobTas != 'nothing'"
+  if noPhys is not None:
+      temp += "AND activities_phySed != 'physical'"
+  if noMent is not None:
+      temp += "AND activities_phySed != 'mental'"
+  if noOut is not None:
+      temp += "AND activities_indOut!= 'outdoors'"
+  if noIn is not None:
+      temp += "AND activities_indOut != 'indoors'"
+  if noRel is not None:
+      temp += "AND activities_excRel != 'relaxing'"
+  if noExc is not None:
+      temp += "AND activities_excRel != 'exciting'"
+  if noComp is not None:
+      temp += "AND activities_simCom != 'complex'"
+  if noSim is not None:
+      temp += "AND activities_simCom != 'simple'"
+  print(temp)
+  return util.rand_act(Activity.query.filter(text(temp)))
 
 @app.route('/api/get_fun', methods=['GET'])
 def get_fun():
-  return util.rand_act(Activity.query.filter(Activity.hobTas != 'task'))
+  global noPhys
+  global noMent
+  global noOut
+  global noIn
+  global noRel
+  global noExc 
+  global noComp 
+  global noSim 
+  temp = "activities_hobTas != 'task'"
+  if noPhys is not None:
+      temp += "AND activities_phySed != 'physical'"
+  if noMent is not None:
+      temp += "AND activities_phySed != 'mental'"
+  if noOut is not None:
+      temp += "AND activities_indOut!= 'outdoors'"
+  if noIn is not None:
+      temp += "AND activities_indOut != 'indoors'"
+  if noRel is not None:
+      temp += "AND activities_excRel != 'relaxing'"
+  if noExc is not None:
+      temp += "AND activities_excRel != 'exciting'"
+  if noComp is not None:
+      temp += "AND activities_simCom != 'complex'"
+  if noSim is not None:
+      temp += "AND activities_simCom != 'simple'"
+  print(temp)
+  return util.rand_act(Activity.query.filter(text(temp)))
 
 @app.errorhandler(404)
 def page_not_found(e):

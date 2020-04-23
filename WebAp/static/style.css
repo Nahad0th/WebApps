@@ -1,0 +1,49 @@
+html{
+  background-color: rgb(138,43,226);
+}
+
+.navBar{
+  background-color: rgb(89, 42, 138);
+  font-size: 20px;
+  padding-bottom: 20px;
+  padding-top: 20px;
+  padding-left: 20px;
+}
+
+.navButton, .navButton:visited {
+    border-style: inset;
+    padding: 5px;
+    margin-right: 10px;
+    color: Purple;
+    background-color: rgb(255,199,2);
+}
+
+.navButton:hover {
+    background-color: white;
+}
+
+h1, .mid { 
+     text-align:center;
+}
+.button {
+        font-family: "OriginalFont";
+        background-color: #FF6347;
+        margin: 0 25px;
+        display: inline;
+        text-align: center;
+        font-size: 18px;
+        position: Relative;
+        top: 250px;
+        left: 33%;
+        height: 50px;
+        width: 100px;
+    }
+
+.button:hover {
+    background-color: white;
+}
+
+#activity_space {
+    text-align:center;
+    padding-bottom: 1px;
+}
